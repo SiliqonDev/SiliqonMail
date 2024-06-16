@@ -1,6 +1,8 @@
 package com.siliqon.siliqonmail;
 
 import co.aikar.commands.PaperCommandManager;
+import com.jeff_media.updatechecker.UpdateCheckSource;
+import com.jeff_media.updatechecker.UpdateChecker;
 import com.siliqon.siliqonmail.commands.MailCommand;
 import com.siliqon.siliqonmail.data.Mailbox;
 import com.siliqon.siliqonmail.data.YMLStorage;
@@ -18,11 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.siliqon.siliqonmail.helper.GeneralUtils.log;
-import static com.siliqon.siliqonmail.helper.GeneralUtils.logError;
+import static com.siliqon.siliqonmail.helper.GeneralUtils.*;
 
 public final class SiliqonMail extends JavaPlugin {
     private static SiliqonMail INSTANCE; {INSTANCE = this;}
+    private static final String SPIGOT_RESOURCE_ID = "117366";
 
     public NamespacedKey customItemKey = new NamespacedKey(this, "siliqonmail-custom-item-for-menus");
     public final String PREFIX = ChatColor.translateAlternateColorCodes('&',"&8&l[&bSiliqon&aMail&r&8&l]&r&f ");
@@ -61,6 +63,13 @@ public final class SiliqonMail extends JavaPlugin {
         guiManager = new GUIManager();
         GUIListener guiListener = new GUIListener(guiManager);
         Bukkit.getPluginManager().registerEvents(guiListener, this);
+        // create update checker
+        new UpdateChecker(this, UpdateCheckSource.SPIGOT, SPIGOT_RESOURCE_ID)
+                .setNotifyOpsOnJoin(getConfigBoolean("notify-update"))
+                .setNotifyByPermissionOnJoin("siliqonmail.updatecheck")
+                .setChangelogLink(SPIGOT_RESOURCE_ID)
+                .checkEveryXHours(12)
+                .checkNow();
         // done
         log("Enabled successfully.");
     }

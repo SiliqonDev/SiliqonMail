@@ -9,4 +9,6 @@ vault-item-blacklist: # Which items are people not allowed to put in their vault
   - BEDROCK
   - END_PORTAL_FRAME
 
+notify-update: true # Notify all ops on join if an update is available
+
 config-version: 1.0
