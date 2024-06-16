@@ -1,0 +1,8 @@
+name: SiliqonMail
+version: '${project.version}'
+main: com.siliqon.siliqonmail.SiliqonMail
+api-version: '1.13'
+prefix: SiliqonMail
+load: STARTUP
+authors: [Siliqon]
+description: A simple plugin that allows players to send and receive mail

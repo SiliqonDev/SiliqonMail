@@ -1,0 +1,53 @@
+# All minecraft color codes are supported (ex. &a, &b, &2, &l)
+# Do not remove or add values, only edit them.
+
+# Main menu
+main-menu-title: "&aMail System"
+check-mail-button: "&aCheck Your Mail"
+send-mail-button: "&aSend Someone Mail"
+send-mail-usage: "&aUsage: /mail send <player>"
+
+# Mails Menu
+mails-menu-title: "&aYour Mail"
+no-mail-item-name: "&cYou don't have any mail!"
+mail-item-name: "&fMail from {sender}"
+mails-menu-skull-lore:
+  - " "
+  - "&7You have {amount} mails."
+close-button: "&cClose Menu"
+next-page-button: "&aNext Page"
+previous-page-button: "&aPrevious Page"
+
+# Mail Menu
+mail-menu-title: "&fMail From {sender}"
+mail-menu-sender-name: "&fSent by {sender}"
+mail-menu-sender-lore:
+  - " "
+  - "&7Sent at: {sent_on}"
+claim-button: "&aAccept Mail"
+delete-button: "&cDelete Mail"
+back-button: "&cGo Back"
+not-enough-space: "&cYour inventory does not have enough space!"
+accepted-mail: "&aMail accepted."
+
+# Send Mail Menu
+send-mail-menu-title: "&2Send to {recipient}"
+send-mail: "&aSend Mail"
+mail-sent: "&aYou have sent mail to {recipient} successfully!"
+cancel-sending-mail: "&cCancelled sending mail."
+
+# Delete Mail Menu
+delete-confirmation-menu-title: "&4Confirm Deletion"
+delete-confirmation-item-name: "&4Confirm?"
+delete-confirmation-item-lore:
+  - " "
+  - "&7THIS IS IRREVERSIBLE."
+mail-deleted: "&cDeleted mail successfully."
+
+# Generic messages
+force-saving-data: "&8Force saving all data..."
+force-saved-data: "&aSuccessfully saved all data."
+cant-mail-self: "&cYou cannot mail yourself!"
+received-mail: "&aYou just received some mail from {sender}!"
+pending-mail: "&aYou have {amount} unclaimed mail(s)!"
+cant-send-empty-mail: "&cYou cannot send empty mail!"
