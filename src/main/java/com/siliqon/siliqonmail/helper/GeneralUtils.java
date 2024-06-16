@@ -55,6 +55,9 @@ public class GeneralUtils {
     public static int getConfigInt(String path) {
         return plugin.getConfig().getInt(path);
     }
+    public static double getConfigDouble(String path) {
+        return plugin.getConfig().getDouble(path);
+    }
     public static String getConfigString(String path) {
         return ChatColor.translateAlternateColorCodes('&',plugin.getConfig().getString(path));
     }

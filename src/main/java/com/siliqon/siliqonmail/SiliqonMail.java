@@ -9,27 +9,28 @@ import com.siliqon.siliqonmail.data.YMLStorage;
 import com.siliqon.siliqonmail.gui.GUIManager;
 import com.siliqon.siliqonmail.listeners.GUIListener;
 import com.siliqon.siliqonmail.listeners.PlayerListener;
+import com.tchristofferson.configupdater.ConfigUpdater;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import static com.siliqon.siliqonmail.helper.GeneralUtils.*;
 
 public final class SiliqonMail extends JavaPlugin {
     private static SiliqonMail INSTANCE; {INSTANCE = this;}
     private static final String SPIGOT_RESOURCE_ID = "117366";
+    private static final double PLUGIN_VERSION = 1.0;
 
     public NamespacedKey customItemKey = new NamespacedKey(this, "siliqonmail-custom-item-for-menus");
     public final String PREFIX = ChatColor.translateAlternateColorCodes('&',"&8&l[&bSiliqon&aMail&r&8&l]&r&f ");
 
     public FileConfiguration lang;
+    private File configFile;
     private PaperCommandManager commandManager;
     public GUIManager guiManager;
 
@@ -38,7 +39,6 @@ public final class SiliqonMail extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        log("Enabling...");
         // plugin enabled?
         if (!getConfig().getBoolean("plugin-enabled")) {
             logError("Plugin is disabled in config.yml. Disabling plugin.");
@@ -47,6 +47,7 @@ public final class SiliqonMail extends JavaPlugin {
         }
         // load files
         saveDefaultConfig();
+        configFile = new File(getDataFolder(), "config.yml");
         createLangFile();
         loadItemBlacklist();
         // load data
@@ -63,13 +64,15 @@ public final class SiliqonMail extends JavaPlugin {
         guiManager = new GUIManager();
         GUIListener guiListener = new GUIListener(guiManager);
         Bukkit.getPluginManager().registerEvents(guiListener, this);
-        // create update checker
+        // create spigot update checker
         new UpdateChecker(this, UpdateCheckSource.SPIGOT, SPIGOT_RESOURCE_ID)
                 .setNotifyOpsOnJoin(getConfigBoolean("notify-update"))
                 .setNotifyByPermissionOnJoin("siliqonmail.updatecheck")
                 .setChangelogLink(SPIGOT_RESOURCE_ID)
                 .checkEveryXHours(12)
                 .checkNow();
+        // check config update
+        checkConfigUpdate();
         // done
         log("Enabled successfully.");
     }
@@ -77,7 +80,6 @@ public final class SiliqonMail extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        log("Disabling...");
         YMLStorage.saveAllData(true);
         // done
         log("Successfully disabled.");
@@ -112,7 +114,20 @@ public final class SiliqonMail extends JavaPlugin {
                 itemBlacklist.add(item);
             } catch (Exception e) {
                 logError("Invalid item found in item blacklist, cannot convert to material. ("+line+')');
+                e.printStackTrace();
             }
+        }
+    }
+
+    private void checkConfigUpdate() {
+        try {
+            if (getConfigDouble("config-version") != PLUGIN_VERSION) {
+                ConfigUpdater.update(this, "config.yml", configFile, Arrays.asList("none"));
+                getConfig().set("config-version", PLUGIN_VERSION);
+            }
+        } catch (IOException e) {
+            logError("Failed to check config file update.");
+            e.printStackTrace();
         }
     }
 
