@@ -8,6 +8,7 @@ import com.siliqon.siliqonmail.gui.InventoryGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -16,106 +17,130 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.siliqon.siliqonmail.helper.GeneralUtils.*;
+import static com.siliqon.siliqonmail.helper.InventoryToBase64.deserializeItemsArray;
 
 public class MailsMenu extends InventoryGUI {
     private final Material backgroundMaterial = Material.GRAY_STAINED_GLASS_PANE;
     private static final SiliqonMail plugin = SiliqonMail.getInstance();
 
-    Mailbox mailbox;
-    List<Mail> playerMail;
-    int page = 1;
-    public MailsMenu(Player player) {
-        this.mailbox = plugin.playerMail.get(player);
-        this.playerMail = mailbox.getMail();
-        createInventory();
-    }
+    int wasOnPage, id, item_amount = 0;
+    ItemStack[] items;
+    String contents;
+    Long sent_at;
+    OfflinePlayer sender;
+    public MailsMenu(Integer wasOnPage, Integer id, Mail mail) {
+        this.wasOnPage = wasOnPage;
+        this.id = id;
+        this.contents = mail.getContents();
+        this.sent_at = mail.getSentAt();
+        this.sender = mail.getSender();
 
-    public void setPage(int page) {
-        this.page = page;
-        decorate(player);
+        createInventory();
     }
 
     @Override
     protected void createInventory() {
-        this.inventory = Bukkit.createInventory(null, 45, getStringFromLang("mails-menu-title"));
+        this.inventory = Bukkit.createInventory(null, 36, plugin.lang.getMailsMenuTitle().replace("{sender}", sender.getName()));
     }
 
     @Override
     public void decorate(Player player) {
+        // set mail contents if any
+        if (contents != null) {
+            try {
+                items = deserializeItemsArray(contents);
+                for (ItemStack item : items) {
+                    if (item != null) {
+                        item_amount++;
+                    }
+                }
+
+                getInventory().setContents(items);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         // set background
-        setMenuBackground(getInventory(), backgroundMaterial, 0, 9, " ");
-        setMenuBackground(getInventory(), backgroundMaterial, 36, 45, " ");
+        setMenuBackground(getInventory(), backgroundMaterial, 27, 36, " ");
 
-        // place mail buttons
-        int start = (27*(page-1));
-        int slot = 9;
+        // buttons
+        addButton(27, backButton());
+        addButton(32, claimButton());
+        addButton(30, deleteButton());
 
-        for (int i = start; i < Integer.min(playerMail.size(), 27*page); i++) {
-            Mail mail = playerMail.get(i);
-            this.addButton(slot, openMailButton(i, mail));
-            slot++;
-        }
-
-        // no mail item
-        if (slot == 9) {
-            this.getInventory().setItem(22, makeSimpleItem(Material.REDSTONE_BLOCK, getStringFromLang("no-mail-item-name"), 1));
-        }
-
-        // next page button
-        if (playerMail.size() > 27*page) {
-            this.addButton(43, nextPageButton());
-        }
-
-        // previous page button
-        if (page > 1) {
-            this.addButton(37, prevPageButton());
-        }
-
-        // close menu button
-        this.addButton(40, closeButton());
-
-        // player info item
-        ItemStack skull = makeSimpleItem(Material.PLAYER_HEAD, ChatColor.WHITE+player.getDisplayName(), 1);
+        // sender info
+        String date = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date (sent_at));
+        ItemStack skull = makeSimpleItem(Material.PLAYER_HEAD, plugin.lang.getMailsMenuSenderName().replace("{sender}", sender.getName()), 1);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
-        meta.setOwningPlayer(player);
-        List<String> lore = getStringListFromLang("mails-menu-skull-lore");
+        meta.setOwningPlayer(sender);
+        List<String> lore = plugin.lang.getMailsMenuSenderLore();
         List<String> newLore = new ArrayList<>();
         for (String line : lore) {
             newLore.add(ChatColor.translateAlternateColorCodes('&',line
-                    .replace("{amount}", String.valueOf(playerMail.size()))
-                    ));
+                    .replace("{sent_at}", date)
+            ));
         }
 
         meta.setLore(newLore);
         skull.setItemMeta(meta);
-        this.getInventory().setItem(4, skull);
+        this.getInventory().setItem(31, skull);
 
         decorateButtons(player);
     }
 
-    private InventoryButton openMailButton(Integer id, Mail mail) {
+    private InventoryButton backButton() {
         return new InventoryButton()
-                .creator(player -> makeSimpleItem(Material.CHEST, getStringFromLang("mail-item-name").replace("{sender}", mail.getSender().getName()), 1))
+                .creator(player -> makeSimpleItem(Material.ARROW, plugin.lang.getBackButton(), 1))
                 .consumer(event -> {
-                    MailMenu mailMenu = new MailMenu(page, id, mail);
-                    plugin.guiManager.openGUI(mailMenu, player);
+                    MailMenu mailsMenu = new MailMenu(player);
+                    plugin.guiManager.openGUI(mailsMenu, player);
+                    mailsMenu.setPage(wasOnPage);
+                });
+    }
+    private InventoryButton claimButton() {
+        return new InventoryButton()
+                .creator(player -> makeSimpleItem(Material.GREEN_BANNER, plugin.lang.getClaimButton(), 1))
+                .consumer(event -> {
+                    int emptySlots = 0;
+                    for (int i = 0; i <= 35; i++) {
+                        ItemStack item = player.getInventory().getItem(i);
+                        if (item == null || item.getType() == Material.AIR) {
+                            emptySlots++;
+                        }
+                    }
+
+                    // TODO: play sounds for both fail and success
+                    if (emptySlots < item_amount) {
+                        sendMessage(player, plugin.lang.getNotEnoughSpace());
+                    } else {
+                        for (ItemStack item : items) {
+                            if (item != null) {
+                                player.getInventory().addItem(item);
+                            }
+                        }
+
+                        // remove mail from cache
+                        Mailbox mailbox = plugin.playerMail.get(player);
+                        mailbox.deleteMail(id);
+                        plugin.playerMail.put(player, mailbox);
+
+                        // reopen mails menu
+                        MailMenu mailsMenu = new MailMenu(player);
+                        plugin.guiManager.openGUI(mailsMenu, player);
+
+                        sendMessage(player, plugin.lang.getAcceptedMail());
+                    }
+
                 });
     }
 
-    private InventoryButton closeButton() {
+    private InventoryButton deleteButton() {
         return new InventoryButton()
-                .creator(player -> makeSimpleItem(Material.BARRIER, getStringFromLang("close-button"), 1))
-                .consumer(event -> player.closeInventory());
-    }
-
-    private InventoryButton nextPageButton() {
-        return new InventoryButton()
-                .creator(player -> makeSimpleItem(Material.ARROW, getStringFromLang("next-page-button"), 1))
-                .consumer(event -> setPage(page+1));
-    }
-    private InventoryButton prevPageButton() {
-        return new InventoryButton()
-                .creator(player -> makeSimpleItem(Material.ARROW, getStringFromLang("previous-page-button"), 1))
-                .consumer(event -> setPage(page-1));
+                .creator(player -> makeSimpleItem(Material.BARRIER, plugin.lang.getDeleteButton(), 1))
+                .consumer(event -> {
+                    DeleteConfirmation deleteConfirmation = new DeleteConfirmation(id);
+                    plugin.guiManager.openGUI(deleteConfirmation, player);
+                });
     }
 }

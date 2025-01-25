@@ -21,7 +21,7 @@ public class MainMenu extends InventoryGUI {
 
     @Override
     protected void createInventory() {
-        this.inventory = Bukkit.createInventory(null, 27, getStringFromLang("main-menu-title"));
+        this.inventory = Bukkit.createInventory(null, 27, plugin.lang.getMainMenuTitle());
     }
 
     @Override
@@ -45,19 +45,19 @@ public class MainMenu extends InventoryGUI {
 
     private InventoryButton checkMailButton() {
         return new InventoryButton()
-                .creator(player -> makeSimpleItem(Material.CHEST, getStringFromLang("check-mail-button"), 1))
+                .creator(player -> makeSimpleItem(Material.CHEST, plugin.lang.getCheckMailButton(), 1))
                 .consumer(event -> {
-                    MailsMenu mailsMenu = new MailsMenu(player);
+                    MailMenu mailsMenu = new MailMenu(player);
                     plugin.guiManager.openGUI(mailsMenu, player);
                 });
     }
 
     private InventoryButton sendMailButton() {
         return new InventoryButton()
-                .creator(player -> makeSimpleItem(Material.PAPER, getStringFromLang("send-mail-button"), 1))
+                .creator(player -> makeSimpleItem(Material.PAPER, plugin.lang.getSendMailButton(), 1))
                 .consumer(event -> {
                     player.closeInventory();
-                    sendMessage(player, getStringFromLang("send-mail-usage"));
+                    sendMessage(player, plugin.lang.getSendMailUsage());
                 });
     }
 }

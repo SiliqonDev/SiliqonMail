@@ -24,7 +24,7 @@ public class DeleteConfirmation extends InventoryGUI {
 
     @Override
     protected void createInventory() {
-        this.inventory = Bukkit.createInventory(null, 27, getStringFromLang("delete-confirmation-menu-title"));
+        this.inventory = Bukkit.createInventory(null, 27, plugin.lang.getDeleteConfirmationMenuTitle());
     }
 
     @Override
@@ -38,7 +38,7 @@ public class DeleteConfirmation extends InventoryGUI {
 
     private InventoryButton deleteButton() {
         return new InventoryButton()
-                .creator(player -> makeItemWithLore(Material.REDSTONE_BLOCK, getStringFromLang("delete-confirmation-item-name"), 1, getStringListFromLang("delete-confirmation-item-lore")))
+                .creator(player -> makeItemWithLore(Material.REDSTONE_BLOCK, plugin.lang.getDeleteConfirmationItemName(), 1, plugin.lang.getDeleteConfirmationItemLore()))
                 .consumer(event -> {
                     // remove mail from cache
                     Mailbox mailbox = plugin.playerMail.get(player);
@@ -46,11 +46,11 @@ public class DeleteConfirmation extends InventoryGUI {
                     plugin.playerMail.put(player, mailbox);
 
                     // reopen mails menu
-                    MailsMenu mailsMenu = new MailsMenu(player);
+                    MailMenu mailsMenu = new MailMenu(player);
                     plugin.guiManager.openGUI(mailsMenu, player);
 
                     // send confirmation message
-                    sendMessage(player, getStringFromLang("mail-deleted"));
+                    sendMessage(player, plugin.lang.getMailDeleted());
                 });
     }
 }

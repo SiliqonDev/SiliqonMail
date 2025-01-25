@@ -95,6 +95,6 @@ public class YMLStorage {
             e.printStackTrace();
         }
 
-        if(log) log("Saved data for "+plugin.playerMail.size()+" players.");
+        if(log) log("Saved data for "+plugin.playerMail.size()+" player(s).");
     }
 }

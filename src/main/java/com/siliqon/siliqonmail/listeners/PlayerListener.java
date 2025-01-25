@@ -9,7 +9,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import static com.siliqon.siliqonmail.SiliqonMail.loadPlayerData;
 import static com.siliqon.siliqonmail.SiliqonMail.savePlayerData;
-import static com.siliqon.siliqonmail.helper.GeneralUtils.getStringFromLang;
 import static com.siliqon.siliqonmail.helper.GeneralUtils.sendMessage;
 
 public class PlayerListener implements Listener {
@@ -22,7 +21,7 @@ public class PlayerListener implements Listener {
 
         int mails = plugin.playerMail.get(player).getMail().size();
         if (mails > 0) {
-            sendMessage(player, getStringFromLang("pending-mail").replace("{amount}", String.valueOf(mails)));
+            sendMessage(player, plugin.lang.getPendingMail().replace("{amount}", String.valueOf(mails)));
         }
     }
 
