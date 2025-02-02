@@ -6,7 +6,7 @@
 
     <groupId>com.siliqon</groupId>
     <artifactId>SiliqonMail</artifactId>
-    <version>1.1</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <name>SiliqonMail</name>
@@ -67,6 +67,52 @@
         </resources>
     </build>
 
+    <profiles>
+        <profile>
+            <id>run-server</id>
+            <properties>
+                <testserver.path>C:/Users/harsh/OneDrive/Desktop/test_servers/1.21</testserver.path>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${testserver.path}/plugins</outputDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>run-server</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <workingDirectory>${testserver.path}</workingDirectory>
+                            <executable>cmd.exe</executable>
+                            <arguments>
+                                <argument>/C</argument>
+                                <argument>java</argument>
+                                <argument>-Xmx4G</argument>
+                                <argument>-Xms4G</argument>
+                                <argument>-jar</argument>
+                                <argument>server.jar</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <repositories>
         <repository>
             <id>spigotmc-repo</id>
@@ -94,7 +140,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21-R0.1-SNAPSHOT</version>
+            <version>1.21.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

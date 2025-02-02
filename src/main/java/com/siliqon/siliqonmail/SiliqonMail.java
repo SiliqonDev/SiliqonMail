@@ -11,6 +11,7 @@ import com.siliqon.siliqonmail.data.YMLStorage;
 import com.siliqon.siliqonmail.gui.GUIManager;
 import com.siliqon.siliqonmail.listeners.GUIListener;
 import com.siliqon.siliqonmail.listeners.PlayerListener;
+import com.siliqon.siliqonmail.listeners.ServerListener;
 import de.exlll.configlib.*;
 import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,7 +42,7 @@ public final class SiliqonMail extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // init config and lang
+        // init files
         initConfig();
         initLangFile();
 
@@ -69,10 +70,10 @@ public final class SiliqonMail extends JavaPlugin {
         registerCommands();
 
         // check for plugin updates
-        new UpdateChecker(this, UpdateCheckSource.SPIGOT, SPIGOT_RESOURCE_ID)
+        new UpdateChecker(this, UpdateCheckSource.SPIGET, SPIGOT_RESOURCE_ID)
                 .setNotifyOpsOnJoin(config.getNotifyUpdates())
-                .setChangelogLink(SPIGOT_RESOURCE_ID)
-                .checkEveryXHours(24)
+                .setDownloadLink("https://www.spigotmc.org/resources/"+SPIGOT_RESOURCE_ID)
+                .checkEveryXHours(12)
                 .checkNow();
 
         // done
@@ -129,6 +130,7 @@ public final class SiliqonMail extends JavaPlugin {
 
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ServerListener(), this);
         Bukkit.getPluginManager().registerEvents(guiListener, this);
     }
 
