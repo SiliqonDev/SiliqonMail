@@ -14,6 +14,7 @@ import com.siliqon.siliqonmail.listeners.PlayerListener;
 import com.siliqon.siliqonmail.listeners.ServerListener;
 import de.exlll.configlib.*;
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -78,6 +79,7 @@ public final class SiliqonMail extends JavaPlugin {
 
         // done
         log("Enabled successfully.");
+        getOnlinePlayerData(); // protect against reloads
     }
 
     @Override
@@ -169,6 +171,13 @@ public final class SiliqonMail extends JavaPlugin {
             getServer().getScheduler().runTaskTimer(this, YMLStorage::save,
                     config.getAutoSaveTimer()*20L, config.getAutoSaveTimer()*20L);
     }
+
+    private void getOnlinePlayerData() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            loadPlayerData(player);
+        }
+    }
+
     public static void loadPlayerData(OfflinePlayer player) {
         playerMail.put(player, YMLStorage.getPlayerData(player));
     }

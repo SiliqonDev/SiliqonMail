@@ -14,14 +14,11 @@ public class ServerListener implements Listener {
     @EventHandler
     public void onServerLoad(ServerLoadEvent e) {
         if (e.getType() == ServerLoadEvent.LoadType.RELOAD) {
-            logError("Server reload detected! Reloading your server is NOT supported!");
-            logError("Please DO NOT report any issues that arise from this");
-            logError("It is recommended to restart the server after this message");
+            logError("Server reload detected! No support will be provided for issues that arise from server reloads.");
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.isOp()) {
-                sendMessage(player, "&cServer reload detected! Reloading your server with the plugin is NOT supported!");
-                sendMessage(player, "&cIt is suggested to restart the server after this message");
+                sendMessage(player, "&cServer reload detected! No support will be provided for issues that arise from server reloads.");
             }
         }
     }
